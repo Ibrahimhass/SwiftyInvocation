@@ -6,6 +6,8 @@
 //
 //
 
+import Foundation
+
 enum SwiftyInvocationError: Error {
     case noMethod
     case noImplementation
@@ -27,12 +29,11 @@ enum SwiftyInvocationError: Error {
 ///   - selector: The selector of which you want to retrieve the implementation.
 ///   - type: The implementation type in @convention (c)
 /// - Returns: The implementation
-public func swift_getImplementation<T>(object: AnyObject, selector: Selector, type: T.Type) throws -> T {
-    guard let method = class_getInstanceMethod(type(of: object), selector) else {
+public func swift_getImplementation<T>(object: AnyClass, selector: Selector, type: T.Type) throws -> T {
+    guard let method = class_getInstanceMethod(object, selector) else {
         throw SwiftyInvocationError.noMethod
     }
-    guard let implementation = method_getImplementation(method) else {
-        throw SwiftyInvocationError.noImplementation
-    }
+    
+    let implementation = method_getImplementation(method)
     return unsafeBitCast(implementation, to: T.self)
 }
